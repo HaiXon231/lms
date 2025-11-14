@@ -1,0 +1,45 @@
+INSERT INTO student (email, password, name, role, department, status, enrollment_year, gpa)
+VALUES
+('son.dang123@hcmut.edu.vn', '123456', 'Dang Son', 'student', 'Computer Science', 'studying', 2021, 3.45),
+
+('anh.tran456@hcmut.edu.vn', 'pass789', 'Tran Anh', 'student', 'Mechanical Engineering', 'studying', 2020, 3.20),
+
+('khoa.le789@hcmut.edu.vn', 'abc123', 'Le Khoa', 'student', 'Electrical Engineering', 'studying', 2022, 2.95),
+
+('minh.pham001@hcmut.edu.vn', 'password', 'Pham Minh', 'student', 'Chemical Engineering', 'studying', 2019, 3.10),
+
+('tien.nguyen321@hcmut.edu.vn', 'mypass', 'Nguyen Tien', 'student', 'Civil Engineering', 'graduated', 2018, 3.75);
+
+SELECT * FROM lms.student;
+
+
+
+INSERT INTO tutor (email, password, name, role, department, status, experience_years, education_level)
+VALUES
+('hoa.nguyen111@hcmut.edu.vn', 'tutor123', 'Nguyen Hoa', 'tutor',
+ 'Computer Science', 'teaching', 5, 'Master'),
+
+('tu.tran222@hcmut.edu.vn', 'tutor456', 'Tran Tu', 'tutor',
+ 'Information Technology', 'teaching', 8, 'PhD'),
+
+('bao.pham333@hcmut.edu.vn', 'tutor789', 'Pham Bao', 'tutor',
+ 'Mechanical Engineering', 'teaching', 3, 'Bachelor'),
+
+('lan.vo444@hcmut.edu.vn', 'cdef123', 'Vo Lan', 'tutor',
+ 'Electrical Engineering', 'teaching', 10, 'PhD'),
+
+('khanh.do555@hcmut.edu.vn', 'zxcv456', 'Do Khanh', 'tutor',
+ 'Civil Engineering', 'teaching', 4, 'Master');
+
+SELECT * FROM lms.tutor;
+
+
+
+status (studying, graduated, teaching…)
+
+Trạng thái	Ý nghĩa
+pending	    Student vừa đăng ký, chờ tutor duyệt
+approved	Tutor đã duyệt cho tham gia
+rejected	Tutor từ chối
+canceled	Student hủy đăng ký 
+

@@ -25,7 +25,7 @@ import com.cnpm.lms.service.ParticipationService;
 import com.cnpm.lms.service.RegistrationService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/tutor")
 public class TutorController {
     @Autowired

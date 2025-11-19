@@ -24,7 +24,7 @@ import com.cnpm.lms.service.TutorService;
 
 @RestController
 @RequestMapping("/student")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:5173")
 public class StudentController {
 
     @Autowired

@@ -2,6 +2,7 @@ package com.cnpm.lms.service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,24 +63,30 @@ public class AvailableSessionService {
         repo.save(session);
     }
 
-    public AvailableSession createAvailableSession(AvailableSessionDTO req) {
+    public List<AvailableSession> createAvailableSession(AvailableSessionDTO req) {
 
         Tutor tutor = tutorService.getTutorById(req.tutorId);
+        List<AvailableSession> result = new ArrayList<>();
 
-        AvailableSession s = new AvailableSession();
-        s.setTutor(tutor);
-        s.setDate(LocalDate.parse(req.date));
-        s.setStartTime(LocalTime.parse(req.startTime));
-        s.setEndTime(LocalTime.parse(req.endTime));
-        s.setName(req.name);
-        s.setDescription(req.description);
-        s.setType(req.type);
-        s.setMinStudents(req.minStudents);
-        s.setMaxStudents(req.maxStudents);
-        s.setDuration(req.duration);
-        s.setOpen(false);
+        for (var slot : req.slots) {
+            AvailableSession s = new AvailableSession();
+            s.setTutor(tutor);
+            s.setDate(LocalDate.parse(slot.date));
+            s.setStartTime(LocalTime.parse(slot.startTime));
+            s.setEndTime(LocalTime.parse(slot.endTime));
 
-        return repo.save(s);
+            s.setName(req.name);
+            s.setDescription(req.description);
+            s.setType(req.type);
+            s.setMinStudents(req.minStudents);
+            s.setMaxStudents(req.maxStudents);
+            s.setDuration(req.duration);
+            s.setOpen(false);
+
+            result.add(repo.save(s));
+        }
+
+        return result;
     }
 
     public boolean forceDeleteAvailableSession(Long id) {

@@ -1,9 +1,10 @@
 package com.cnpm.lms.domain.DTO;
 
-import java.util.List;
-
-public class AvailableSessionDTO {
+public class SingleAvailableSessionDTO {
     public Long id;
+    public String date;
+    public String startTime;
+    public String endTime;
     public String name;
     public String description;
     public String type;
@@ -14,13 +15,4 @@ public class AvailableSessionDTO {
 
     public Long tutorId;
     public String tutorName;
-
-    public List<TimeSlotDTO> slots;
-
-    public static class TimeSlotDTO {
-        public String date;
-        public String startTime;
-        public String endTime;
-    }
-
 }

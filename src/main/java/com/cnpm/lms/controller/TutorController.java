@@ -50,8 +50,12 @@ public class TutorController {
     public ResponseEntity<?> createAvailableSession(
             @RequestBody AvailableSessionDTO req) {
 
-        AvailableSession s = availableSessionService.createAvailableSession(req);
-        return ResponseEntity.ok(mapper.toAvailableSessionDTO(s));
+        var sessions = availableSessionService.createAvailableSession(req)
+                .stream()
+                .map(mapper::toAvailableSessionDTO)
+                .toList();
+
+        return ResponseEntity.ok(sessions);
     }
 
     @GetMapping("/{tutorId}/available-sessions")

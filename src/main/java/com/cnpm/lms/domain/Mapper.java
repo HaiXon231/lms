@@ -7,6 +7,7 @@ import com.cnpm.lms.domain.DTO.ConsultationSessionDTO;
 import com.cnpm.lms.domain.DTO.FeedbackDTO;
 import com.cnpm.lms.domain.DTO.ParticipantDTO;
 import com.cnpm.lms.domain.DTO.RegistrationDTO;
+import com.cnpm.lms.domain.DTO.SingleAvailableSessionDTO;
 import com.cnpm.lms.domain.DTO.TutorDTO;
 import com.cnpm.lms.domain.DTO.TutorDetailDTO;
 import com.cnpm.lms.domain.DTO.TutorListDTO;
@@ -26,15 +27,18 @@ public class Mapper {
         return dto;
     }
 
-    public AvailableSessionDTO toAvailableSessionDTO(AvailableSession s) {
-        AvailableSessionDTO dto = new AvailableSessionDTO();
+    public SingleAvailableSessionDTO toAvailableSessionDTO(AvailableSession s) {
+        SingleAvailableSessionDTO dto = new SingleAvailableSessionDTO();
+
         dto.id = s.getId();
         dto.date = s.getDate().toString();
         dto.startTime = s.getStartTime().toString();
         dto.endTime = s.getEndTime().toString();
+
         dto.name = s.getName();
         dto.description = s.getDescription();
         dto.type = s.getType();
+
         dto.minStudents = s.getMinStudents();
         dto.maxStudents = s.getMaxStudents();
         dto.duration = s.getDuration();
@@ -42,6 +46,7 @@ public class Mapper {
 
         dto.tutorId = s.getTutor().getId();
         dto.tutorName = s.getTutor().getName();
+
         return dto;
     }
 

@@ -2,7 +2,6 @@ package com.cnpm.lms.domain;
 
 import org.springframework.stereotype.Component;
 
-import com.cnpm.lms.domain.DTO.AvailableSessionDTO;
 import com.cnpm.lms.domain.DTO.ConsultationSessionDTO;
 import com.cnpm.lms.domain.DTO.FeedbackDTO;
 import com.cnpm.lms.domain.DTO.ParticipantDTO;

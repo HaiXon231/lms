@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cnpm.lms.domain.AvailableSession;
 import com.cnpm.lms.domain.ConsultationSession;
 import com.cnpm.lms.domain.Mapper;
 import com.cnpm.lms.domain.Registration;

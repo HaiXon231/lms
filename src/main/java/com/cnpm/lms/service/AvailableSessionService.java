@@ -27,7 +27,10 @@ public class AvailableSessionService {
     private RegistrationRepository registrationRepo;
 
     public List<AvailableSession> getByTutorId(Long tutorId) {
-        return repo.findByTutorId(tutorId);
+        return repo.findByTutorId(tutorId)
+                .stream()
+                .filter(s -> s.getConsultationSession() == null)
+                .toList();
     }
 
     public List<AvailableSession> getOpenSessionsByTutorId(Long tutorId) {

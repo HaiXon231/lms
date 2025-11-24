@@ -43,6 +43,8 @@ public class ConsultationSessionService {
     public ConsultationSession createFromAvailableSession(Long availableSessionId, String room) {
         ConsultationSession session = new ConsultationSession();
         AvailableSession availableSession = this.availableSessionRepo.findById(availableSessionId).orElseThrow();
+        availableSession.setOpen(false);
+        availableSessionRepo.save(availableSession);
         Long tutorId = availableSession.getTutor().getId();
         Tutor tutor = this.tutorService.getTutorById(tutorId);
         session.setTutor(tutor);

@@ -15,7 +15,7 @@ public class AvailableSessionDTO {
     
     public String description;
     
-    @Pattern(regexp = "online|offline", message = "Type must be either online or offline")
+    @Pattern(regexp = "(?i)online|offline", message = "Type must be either online or offline")
     public String type;
     
     @Min(value = 1, message = "minStudents must be at least 1")

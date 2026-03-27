@@ -5,6 +5,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.cnpm.lms.domain.Student;
+import com.cnpm.lms.domain.Tutor;
 import com.cnpm.lms.repository.StudentRepository;
 import com.cnpm.lms.repository.TutorRepository;
 
@@ -22,20 +24,32 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Hash student passwords if they aren't hashed yet
-        studentRepo.findAll().forEach(s -> {
-            if (s.getPassword() != null && !s.getPassword().startsWith("$2a$")) {
-                s.setPassword(passwordEncoder.encode(s.getPassword()));
-                studentRepo.save(s);
-            }
-        });
+        if (studentRepo.count() == 0) {
+            Student s = new Student();
+            s.setEmail("student@lms");
+            s.setPassword(passwordEncoder.encode("123456"));
+            s.setName("Nguyen Van A (Sinh Vien)");
+            s.setRole("student");
+            s.setDepartment("Hệ thống thông tin");
+            s.setStatus("ACTIVE");
+            s.setEnrollmentYear(2023);
+            s.setGpa(3.8);
+            studentRepo.save(s);
+            System.out.println("====== [SEEDER] Tạo Sinh Viên Test: student@lms / 123456 ======");
+        }
 
-        // Hash tutor passwords if they aren't hashed yet
-        tutorRepo.findAll().forEach(t -> {
-            if (t.getPassword() != null && !t.getPassword().startsWith("$2a$")) {
-                t.setPassword(passwordEncoder.encode(t.getPassword()));
-                tutorRepo.save(t);
-            }
-        });
+        if (tutorRepo.count() == 0) {
+            Tutor t = new Tutor();
+            t.setEmail("tutor@lms");
+            t.setPassword(passwordEncoder.encode("123456"));
+            t.setName("Tran Thi B (Giang Vien)");
+            t.setRole("tutor");
+            t.setDepartment("Khoa Công Nghệ Thông Tin");
+            t.setStatus("ACTIVE");
+            t.setExperienceYears(5L);
+            t.setEducationLevel("Thạc sĩ");
+            tutorRepo.save(t);
+            System.out.println("====== [SEEDER] Tạo Giảng Viên Test: tutor@lms / 123456 ======");
+        }
     }
 }

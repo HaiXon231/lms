@@ -40,10 +40,11 @@ public class RegistrationService {
             throw new IllegalStateException("Available session is not open for registration.");
         }
 
-        // Check if student already registered (pending or approved)
+        // BUG FIX (Bug 2): so sanh Long voi long bang .equals() thay vi ==
+        // Student.getId() tra ve long (primitive) -> dung studentId.equals() de autobox
         boolean alreadyRegistered = availableSession.getRegistrations()
                 .stream()
-                .anyMatch(r -> r.getStudent().getId() == studentId 
+                .anyMatch(r -> studentId.equals(r.getStudent().getId())
                             && ("pending".equals(r.getStatus()) || "approved".equals(r.getStatus())));
         
         if (alreadyRegistered) {
@@ -60,18 +61,15 @@ public class RegistrationService {
             throw new IllegalStateException("Maximum student capacity reached for this session.");
         }
 
+        // BUG FIX (Bug 3): luu Registration TRUOC, sau do moi add vao collection
+        // Tranh viec cascade insert registration khi chua co id
         var registration = new Registration();
         registration.setStudent(student);
         registration.setAvailableSession(availableSession);
         registration.setStatus("pending");
-        registration.setRegisteredAt(java.time.LocalDateTime.now()); // Set registration time if field exists
+        registration.setRegisteredAt(java.time.LocalDateTime.now());
 
-        availableSession.getRegistrations().add(registration);
-        availableSessionRepository.save(availableSession);
-
-        student.getAvailableSessionRegistrations().add(registration);
-        studentRepository.save(student);
-
+        // Luu registration de co id truoc
         return repo.save(registration);
     }
 
@@ -79,8 +77,6 @@ public class RegistrationService {
         var registration = repo.findById(registrationId).orElse(null);
         if (registration != null) {
             registration.setStatus("canceled");
-            registration.getAvailableSession().getRegistrations().remove(registration);
-            availableSessionRepository.save(registration.getAvailableSession());
             return repo.save(registration);
         }
         return null;

@@ -106,7 +106,7 @@ public class StudentController {
     @DeleteMapping("/registrations/{registrationId}")
     public ResponseEntity<?> cancel(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long registrationId) {
         Registration reg = registrationService.getById(registrationId);
-        if (reg == null || reg.getStudent().getId() != user.getId().longValue()) {
+        if (reg == null || !user.getId().equals(reg.getStudent().getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized to cancel this registration");
         }
         return ResponseEntity.ok(registrationService.cancelRegistration(registrationId));

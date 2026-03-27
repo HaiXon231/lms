@@ -67,7 +67,7 @@ public class TutorController {
 
     @GetMapping("/{tutorId}/available-sessions")
     public ResponseEntity<?> getAvailableSessionsByTutor(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long tutorId) {
-        if (tutorId.longValue() != user.getId().longValue()) {
+        if (!user.getId().equals(tutorId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not allowed to view other tutor's sessions");
         }
         var list = availableSessionService.getByTutorId(tutorId)
@@ -81,7 +81,7 @@ public class TutorController {
     @PatchMapping("/available-sessions/{id}/open")
     public ResponseEntity<?> openRegistration(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long id) {
         var s = availableSessionService.getAvailableSessionById(id);
-        if (s == null || s.getTutor().getId() != user.getId().longValue()) {
+        if (s == null || !user.getId().equals(s.getTutor().getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not your session");
         }
         s = availableSessionService.openAvailableSession(id);
@@ -94,7 +94,7 @@ public class TutorController {
             @Valid @RequestBody ConsultationSessionDTO req) {
 
         var s = availableSessionService.getAvailableSessionById(req.availableSessionId);
-        if (s == null || s.getTutor().getId() != user.getId().longValue()) {
+        if (s == null || !user.getId().equals(s.getTutor().getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not your session");
         }
         ConsultationSession cs = consultationSessionService.createFromAvailableSession(req.availableSessionId, req.room);
@@ -104,7 +104,7 @@ public class TutorController {
 
     @GetMapping("/{tutorId}/consultation-sessions")
     public ResponseEntity<?> getConsultationSessions(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long tutorId) {
-        if (tutorId.longValue() != user.getId().longValue()) {
+        if (!user.getId().equals(tutorId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not allowed to view other tutor's sessions");
         }
 
@@ -119,7 +119,7 @@ public class TutorController {
     @GetMapping("available-sessions/{id}/registrations")
     public ResponseEntity<?> getRegistrations(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long id) {
         var s = availableSessionService.getAvailableSessionById(id);
-        if (s == null || s.getTutor().getId() != user.getId().longValue()) {
+        if (s == null || !user.getId().equals(s.getTutor().getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not your session");
         }
         var list = registrationService.getRegistrationsByAvailableSessionId(id)
@@ -133,7 +133,7 @@ public class TutorController {
     @PatchMapping("/registrations/{id}/approve")
     public ResponseEntity<?> approve(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long id) {
         Registration r = registrationService.getById(id);
-        if (r == null || r.getAvailableSession().getTutor().getId() != user.getId().longValue()) {
+        if (r == null || !user.getId().equals(r.getAvailableSession().getTutor().getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
         }
         Registration reg = consultationSessionService.approvedRegistration(r);
@@ -143,7 +143,7 @@ public class TutorController {
     @PatchMapping("/registrations/{id}/reject")
     public ResponseEntity<?> reject(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long id) {
         Registration r = registrationService.getById(id);
-        if (r == null || r.getAvailableSession().getTutor().getId() != user.getId().longValue()) {
+        if (r == null || !user.getId().equals(r.getAvailableSession().getTutor().getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
         }
         Registration reg = consultationSessionService.rejectedRegistration(r);
@@ -153,7 +153,7 @@ public class TutorController {
     @GetMapping("/consultation-sessions/{id}/participants")
     public ResponseEntity<?> getParticipants(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long id) {
         var cs = consultationSessionService.getById(id);
-        if (cs == null || cs.getTutor().getId() != user.getId().longValue()) {
+        if (cs == null || !user.getId().equals(cs.getTutor().getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
         }
         var list = participationService.getBySessionId(id)
@@ -167,7 +167,7 @@ public class TutorController {
     @GetMapping("/consultation-sessions/{id}/feedbacks")
     public ResponseEntity<?> getFeedbacks(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long id) {
         var session = consultationSessionService.getById(id);
-        if (session == null || session.getTutor().getId() != user.getId().longValue()) {
+        if (session == null || !user.getId().equals(session.getTutor().getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
         }
 
@@ -184,7 +184,7 @@ public class TutorController {
     @DeleteMapping("/available-sessions/{id}")
     public ResponseEntity<?> deleteAvailableSession(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long id) {
         var s = availableSessionService.getAvailableSessionById(id);
-        if (s == null || s.getTutor().getId() != user.getId().longValue()) {
+        if (s == null || !user.getId().equals(s.getTutor().getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not your session or not found");
         }
         try {

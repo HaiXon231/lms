@@ -59,10 +59,18 @@ public class ConsultationSessionService {
     }
 
     public Registration approvedRegistration(Registration registration) {
-        Participation participation = new Participation();
-        participation.setStudent(registration.getStudent());
         AvailableSession availableSession = registration.getAvailableSession();
         ConsultationSession session = repo.findBySourceAvailableSession(availableSession);
+
+        // BUG FIX (Bug 4): Tutor phai tao ConsultationSession TRUOC khi approve
+        if (session == null) {
+            throw new IllegalStateException(
+                "Cannot approve: ConsultationSession has not been created for this available session yet. " +
+                "Please create a consultation session first.");
+        }
+
+        Participation participation = new Participation();
+        participation.setStudent(registration.getStudent());
         participation.setSession(session);
         List<Participation> participants = session.getParticipants();
         participants.add(participation);

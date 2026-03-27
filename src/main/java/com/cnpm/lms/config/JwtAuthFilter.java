@@ -33,7 +33,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 Claims claims = jwtUtils.getClaimsFromJwtToken(jwt);
                 String email = claims.getSubject();
                 String role = claims.get("role", String.class);
-                Long id = claims.get("id", Long.class);
+                Number idNum = claims.get("id", Number.class);
+                Long id = idNum != null ? idNum.longValue() : null;
 
                 // Create Custom Principal containing ID and Role
                 CustomUserDetails userDetails = new CustomUserDetails(id, email, role);

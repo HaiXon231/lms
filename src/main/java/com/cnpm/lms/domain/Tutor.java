@@ -22,6 +22,7 @@ public class Tutor {
     private String status;
     private long experienceYears;
     private String educationLevel;
+    private String avatarUrl;
 
     @OneToMany(mappedBy = "tutor")
     private List<AvailableSession> availableSessions;
@@ -115,6 +116,14 @@ public class Tutor {
 
     public void setConsultationSessions(List<ConsultationSession> consultationSessions) {
         this.consultationSessions = consultationSessions;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
 }

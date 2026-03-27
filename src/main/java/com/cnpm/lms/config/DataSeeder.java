@@ -34,6 +34,7 @@ public class DataSeeder implements CommandLineRunner {
             s.setStatus("ACTIVE");
             s.setEnrollmentYear(2023);
             s.setGpa(3.8);
+            s.setAvatarUrl("https://i.pravatar.cc/150?u=student@lms");
             studentRepo.save(s);
             System.out.println("====== [SEEDER] Tạo Sinh Viên Test: student@lms / 123456 ======");
         }
@@ -48,8 +49,23 @@ public class DataSeeder implements CommandLineRunner {
             t.setStatus("ACTIVE");
             t.setExperienceYears(5L);
             t.setEducationLevel("Thạc sĩ");
+            t.setAvatarUrl("https://i.pravatar.cc/150?u=tutor@lms");
             tutorRepo.save(t);
             System.out.println("====== [SEEDER] Tạo Giảng Viên Test: tutor@lms / 123456 ======");
         }
+
+        // Đảm bảo các user cũ cũng có avatar
+        studentRepo.findAll().forEach(s -> {
+            if (s.getAvatarUrl() == null || s.getAvatarUrl().isEmpty()) {
+                s.setAvatarUrl("https://i.pravatar.cc/150?u=" + s.getEmail());
+                studentRepo.save(s);
+            }
+        });
+        tutorRepo.findAll().forEach(t -> {
+            if (t.getAvatarUrl() == null || t.getAvatarUrl().isEmpty()) {
+                t.setAvatarUrl("https://i.pravatar.cc/150?u=" + t.getEmail());
+                tutorRepo.save(t);
+            }
+        });
     }
 }

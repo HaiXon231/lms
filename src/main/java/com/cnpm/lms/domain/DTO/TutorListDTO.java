@@ -7,4 +7,5 @@ public class TutorListDTO {
     public String educationLevel;
     public int experienceYears;
     public Double averageRating = 0.0;
+    public String avatarUrl;
 }

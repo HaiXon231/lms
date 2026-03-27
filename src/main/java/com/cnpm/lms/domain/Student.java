@@ -21,6 +21,7 @@ public class Student {
     private String status;
     private long enrollmentYear;
     private double gpa;
+    private String avatarUrl;
 
     @OneToMany(mappedBy = "student")
     private List<Participation> participations;
@@ -114,6 +115,14 @@ public class Student {
 
     public void setAvailableSessionRegistrations(List<Registration> availableSessionRegistrations) {
         this.availableSessionRegistrations = availableSessionRegistrations;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
 }

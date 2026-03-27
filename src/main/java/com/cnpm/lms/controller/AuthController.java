@@ -40,7 +40,7 @@ public class AuthController {
         var student = studentRepo.findByEmail(req.email).orElse(null);
         if (student != null && passwordEncoder.matches(req.password, student.getPassword())) {
             String token = jwtUtils.generateJwtToken(student.getEmail(), "student", student.getId());
-            LoginResponse response = new LoginResponse(student.getId(), student.getName(), "student");
+            LoginResponse response = new LoginResponse(student.getId(), student.getName(), "student", student.getAvatarUrl());
             // Set token in response (assuming LoginResponse needs a token field, wait, does LoginResponse have it?)
             // We'll return a custom map or we need to update LoginResponse domain.
             return ResponseEntity.ok(new AuthResponse(token, response));
@@ -50,14 +50,14 @@ public class AuthController {
         var tutor = tutorRepo.findByEmail(req.email).orElse(null);
         if (tutor != null && passwordEncoder.matches(req.password, tutor.getPassword())) {
             String token = jwtUtils.generateJwtToken(tutor.getEmail(), "tutor", tutor.getId());
-            LoginResponse response = new LoginResponse(tutor.getId(), tutor.getName(), "tutor");
+            LoginResponse response = new LoginResponse(tutor.getId(), tutor.getName(), "tutor", tutor.getAvatarUrl());
             return ResponseEntity.ok(new AuthResponse(token, response));
         }
 
         // Check admin
         if ("admin@lms".equals(req.email) && "admin123".equals(req.password)) {
             String token = jwtUtils.generateJwtToken("admin@lms", "admin", 0L);
-            LoginResponse response = new LoginResponse(0L, "Administrator", "admin");
+            LoginResponse response = new LoginResponse(0L, "Administrator", "admin", "https://i.pravatar.cc/150?u=admin@lms");
             return ResponseEntity.ok(new AuthResponse(token, response));
         }
 

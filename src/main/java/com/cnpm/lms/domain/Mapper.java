@@ -28,6 +28,7 @@ public class Mapper {
         dto.status = t.getStatus();
         dto.experienceYears = (int) t.getExperienceYears();
         dto.educationLevel = t.getEducationLevel();
+        dto.avatarUrl = t.getAvatarUrl();
         return dto;
     }
 
@@ -151,6 +152,7 @@ public class Mapper {
         dto.experienceYears = (int) t.getExperienceYears();
         Double rating = feedbackRepo.getAverageRatingForTutor(t.getId());
         dto.averageRating = (rating != null) ? Math.round(rating * 10.0) / 10.0 : 0.0;
+        dto.avatarUrl = t.getAvatarUrl();
         return dto;
     }
 
@@ -165,6 +167,7 @@ public class Mapper {
         dto.experienceYears = (int) t.getExperienceYears();
         Double rating = feedbackRepo.getAverageRatingForTutor(t.getId());
         dto.averageRating = (rating != null) ? Math.round(rating * 10.0) / 10.0 : 0.0;
+        dto.avatarUrl = t.getAvatarUrl();
         return dto;
     }
 

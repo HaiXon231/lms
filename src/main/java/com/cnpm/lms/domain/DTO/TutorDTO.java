@@ -8,4 +8,5 @@ public class TutorDTO {
     public String status;
     public int experienceYears;
     public String educationLevel;
+    public String avatarUrl;
 }

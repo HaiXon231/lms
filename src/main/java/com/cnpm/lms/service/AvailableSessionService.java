@@ -5,6 +5,8 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +17,10 @@ import com.cnpm.lms.domain.DTO.AvailableSessionDTO;
 import com.cnpm.lms.repository.AvailableSessionRepository;
 import com.cnpm.lms.repository.RegistrationRepository;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
+@Transactional
 public class AvailableSessionService {
     @Autowired
     private AvailableSessionRepository repo;
@@ -33,8 +38,8 @@ public class AvailableSessionService {
                 .toList();
     }
 
-    public List<AvailableSession> getOpenSessionsByTutorId(Long tutorId) {
-        return repo.findByTutorIdAndIsOpenTrue(tutorId);
+    public List<AvailableSession> getOpenSessionsByTutorId(Long tutorId, int page, int size) {
+        return repo.findByTutorIdAndIsOpenTrue(tutorId, PageRequest.of(page, size));
     }
 
     public AvailableSession saveAvailableSession(AvailableSession session) {

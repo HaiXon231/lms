@@ -8,13 +8,15 @@ import org.springframework.stereotype.Service;
 import com.cnpm.lms.domain.Tutor;
 import com.cnpm.lms.repository.TutorRepository;
 
+import org.springframework.data.domain.PageRequest;
+
 @Service
 public class TutorService {
     @Autowired
     private TutorRepository tutorRepository;
 
-    public List<Tutor> getAllTutors() {
-        return tutorRepository.findAll();
+    public List<Tutor> getAllTutors(int page, int size) {
+        return tutorRepository.findAll(PageRequest.of(page, size)).getContent();
     }
 
     public Tutor getTutorByEmail(String email) {

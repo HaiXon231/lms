@@ -23,6 +23,12 @@ import com.cnpm.lms.service.FeedBackService;
 import com.cnpm.lms.service.ParticipationService;
 import com.cnpm.lms.service.RegistrationService;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.cnpm.lms.config.CustomUserDetails;
+import org.springframework.http.HttpStatus;
+
+import jakarta.validation.Valid;
+
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/tutor")
@@ -47,8 +53,10 @@ public class TutorController {
 
     @PostMapping("available-sessions/create")
     public ResponseEntity<?> createAvailableSession(
-            @RequestBody AvailableSessionDTO req) {
+            @AuthenticationPrincipal CustomUserDetails user,
+            @Valid @RequestBody AvailableSessionDTO req) {
 
+        req.tutorId = user.getId(); // Override explicitly with JWT identity
         var sessions = availableSessionService.createAvailableSession(req)
                 .stream()
                 .map(mapper::toAvailableSessionDTO)
@@ -58,7 +66,10 @@ public class TutorController {
     }
 
     @GetMapping("/{tutorId}/available-sessions")
-    public ResponseEntity<?> getAvailableSessionsByTutor(@PathVariable Long tutorId) {
+    public ResponseEntity<?> getAvailableSessionsByTutor(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long tutorId) {
+        if (tutorId.longValue() != user.getId().longValue()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not allowed to view other tutor's sessions");
+        }
         var list = availableSessionService.getByTutorId(tutorId)
                 .stream()
                 .map(mapper::toAvailableSessionDTO)
@@ -68,22 +79,34 @@ public class TutorController {
     }
 
     @PatchMapping("/available-sessions/{id}/open")
-    public ResponseEntity<?> openRegistration(@PathVariable Long id) {
-        var s = availableSessionService.openAvailableSession(id);
+    public ResponseEntity<?> openRegistration(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long id) {
+        var s = availableSessionService.getAvailableSessionById(id);
+        if (s == null || s.getTutor().getId() != user.getId().longValue()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not your session");
+        }
+        s = availableSessionService.openAvailableSession(id);
         return ResponseEntity.ok(mapper.toAvailableSessionDTO(s));
     }
 
     @PostMapping("/consultation-sessions/create")
     public ResponseEntity<?> createConsultationSession(
-            @RequestBody ConsultationSessionDTO req) {
+            @AuthenticationPrincipal CustomUserDetails user,
+            @Valid @RequestBody ConsultationSessionDTO req) {
 
-        ConsultationSession s = consultationSessionService.createFromAvailableSession(req.availableSessionId, req.room);
+        var s = availableSessionService.getAvailableSessionById(req.availableSessionId);
+        if (s == null || s.getTutor().getId() != user.getId().longValue()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not your session");
+        }
+        ConsultationSession cs = consultationSessionService.createFromAvailableSession(req.availableSessionId, req.room);
 
-        return ResponseEntity.ok(mapper.toConsultationSessionDTO(s));
+        return ResponseEntity.ok(mapper.toConsultationSessionDTO(cs));
     }
 
     @GetMapping("/{tutorId}/consultation-sessions")
-    public ResponseEntity<?> getConsultationSessions(@PathVariable Long tutorId) {
+    public ResponseEntity<?> getConsultationSessions(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long tutorId) {
+        if (tutorId.longValue() != user.getId().longValue()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not allowed to view other tutor's sessions");
+        }
 
         var list = consultationSessionService.getConsultationSessionsByTutorId(tutorId)
                 .stream()
@@ -94,7 +117,11 @@ public class TutorController {
     }
 
     @GetMapping("available-sessions/{id}/registrations")
-    public ResponseEntity<?> getRegistrations(@PathVariable Long id) {
+    public ResponseEntity<?> getRegistrations(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long id) {
+        var s = availableSessionService.getAvailableSessionById(id);
+        if (s == null || s.getTutor().getId() != user.getId().longValue()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not your session");
+        }
         var list = registrationService.getRegistrationsByAvailableSessionId(id)
                 .stream()
                 .map(mapper::toRegistrationDTO)
@@ -104,21 +131,31 @@ public class TutorController {
     }
 
     @PatchMapping("/registrations/{id}/approve")
-    public ResponseEntity<?> approve(@PathVariable Long id) {
+    public ResponseEntity<?> approve(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long id) {
         Registration r = registrationService.getById(id);
+        if (r == null || r.getAvailableSession().getTutor().getId() != user.getId().longValue()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
+        }
         Registration reg = consultationSessionService.approvedRegistration(r);
         return ResponseEntity.ok(mapper.toRegistrationDTO(reg));
     }
 
     @PatchMapping("/registrations/{id}/reject")
-    public ResponseEntity<?> reject(@PathVariable Long id) {
+    public ResponseEntity<?> reject(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long id) {
         Registration r = registrationService.getById(id);
+        if (r == null || r.getAvailableSession().getTutor().getId() != user.getId().longValue()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
+        }
         Registration reg = consultationSessionService.rejectedRegistration(r);
         return ResponseEntity.ok(mapper.toRegistrationDTO(reg));
     }
 
     @GetMapping("/consultation-sessions/{id}/participants")
-    public ResponseEntity<?> getParticipants(@PathVariable Long id) {
+    public ResponseEntity<?> getParticipants(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long id) {
+        var cs = consultationSessionService.getById(id);
+        if (cs == null || cs.getTutor().getId() != user.getId().longValue()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
+        }
         var list = participationService.getBySessionId(id)
                 .stream()
                 .map(mapper::toParticipantDTO)
@@ -128,9 +165,11 @@ public class TutorController {
     }
 
     @GetMapping("/consultation-sessions/{id}/feedbacks")
-    public ResponseEntity<?> getFeedbacks(@PathVariable Long id) {
-
+    public ResponseEntity<?> getFeedbacks(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long id) {
         var session = consultationSessionService.getById(id);
+        if (session == null || session.getTutor().getId() != user.getId().longValue()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
+        }
 
         var result = session.getParticipants()
                 .stream()
@@ -143,7 +182,11 @@ public class TutorController {
     }
 
     @DeleteMapping("/available-sessions/{id}")
-    public ResponseEntity<?> deleteAvailableSession(@PathVariable Long id) {
+    public ResponseEntity<?> deleteAvailableSession(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long id) {
+        var s = availableSessionService.getAvailableSessionById(id);
+        if (s == null || s.getTutor().getId() != user.getId().longValue()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not your session or not found");
+        }
         try {
             availableSessionService.forceDeleteAvailableSession(id);
             return ResponseEntity.ok("Available session " + id + " deleted. All registrations rejected.");
@@ -151,5 +194,4 @@ public class TutorController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
-
 }

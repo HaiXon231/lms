@@ -16,9 +16,19 @@ public class Feedback {
 
     private String content;
 
+    private Integer rating;
+
     @OneToOne
     @JoinColumn(name = "participation_id")
     private Participation participation;
+
+    public Integer getRating() {
+        return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
 
     public Long getId() {
         return id;

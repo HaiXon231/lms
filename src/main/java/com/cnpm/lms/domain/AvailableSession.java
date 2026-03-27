@@ -13,7 +13,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
+@SQLDelete(sql = "UPDATE available_session SET is_deleted = true WHERE id=?")
+@SQLRestriction("is_deleted = false")
 public class AvailableSession {
 
     @Id
@@ -34,6 +39,8 @@ public class AvailableSession {
     private boolean isOpen = false; // mở đăng ký hay không
 
     private boolean isSurveyFinished = false; // hết thời gian khảo sát chưa
+
+    private boolean isDeleted = false; // soft delete flag
 
     @ManyToOne
     @JoinColumn(name = "tutor_id")
@@ -164,6 +171,14 @@ public class AvailableSession {
 
     public void setRegistrations(List<Registration> registrations) {
         this.registrations = registrations;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 
 }

@@ -12,7 +12,10 @@ import com.cnpm.lms.repository.AvailableSessionRepository;
 import com.cnpm.lms.repository.RegistrationRepository;
 import com.cnpm.lms.repository.StudentRepository;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
+@Transactional
 public class RegistrationService {
     @Autowired
     private RegistrationRepository repo;
@@ -28,13 +31,40 @@ public class RegistrationService {
     }
 
     public Registration register(Long studentId, Long availableSessionId) {
-        var registration = new Registration();
-        Student student = this.studentRepository.findById(studentId).orElse(null);
-        AvailableSession availableSession = this.availableSessionRepository.findById(availableSessionId).orElse(null);
+        Student student = this.studentRepository.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+        AvailableSession availableSession = this.availableSessionRepository.findById(availableSessionId)
+                .orElseThrow(() -> new IllegalArgumentException("AvailableSession not found"));
 
+        if (!availableSession.isOpen()) {
+            throw new IllegalStateException("Available session is not open for registration.");
+        }
+
+        // Check if student already registered (pending or approved)
+        boolean alreadyRegistered = availableSession.getRegistrations()
+                .stream()
+                .anyMatch(r -> r.getStudent().getId() == studentId 
+                            && ("pending".equals(r.getStatus()) || "approved".equals(r.getStatus())));
+        
+        if (alreadyRegistered) {
+            throw new IllegalStateException("Student already registered for this session.");
+        }
+
+        // Check max capacity
+        long currentRegistrations = availableSession.getRegistrations()
+                .stream()
+                .filter(r -> "pending".equals(r.getStatus()) || "approved".equals(r.getStatus()))
+                .count();
+                
+        if (currentRegistrations >= availableSession.getMaxStudents()) {
+            throw new IllegalStateException("Maximum student capacity reached for this session.");
+        }
+
+        var registration = new Registration();
         registration.setStudent(student);
         registration.setAvailableSession(availableSession);
         registration.setStatus("pending");
+        registration.setRegisteredAt(java.time.LocalDateTime.now()); // Set registration time if field exists
 
         availableSession.getRegistrations().add(registration);
         availableSessionRepository.save(availableSession);

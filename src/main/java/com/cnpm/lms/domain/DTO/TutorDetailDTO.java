@@ -8,4 +8,5 @@ public class TutorDetailDTO {
     public String status;
     public String educationLevel;
     public int experienceYears;
+    public Double averageRating = 0.0;
 }

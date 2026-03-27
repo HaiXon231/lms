@@ -10,9 +10,14 @@ import com.cnpm.lms.domain.DTO.SingleAvailableSessionDTO;
 import com.cnpm.lms.domain.DTO.TutorDTO;
 import com.cnpm.lms.domain.DTO.TutorDetailDTO;
 import com.cnpm.lms.domain.DTO.TutorListDTO;
+import com.cnpm.lms.repository.FeedbackRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Component
 public class Mapper {
+
+    @Autowired
+    private FeedbackRepository feedbackRepo;
 
     public TutorDTO toTutorDTO(Tutor t) {
         TutorDTO dto = new TutorDTO();
@@ -144,6 +149,8 @@ public class Mapper {
         dto.department = t.getDepartment();
         dto.educationLevel = t.getEducationLevel();
         dto.experienceYears = (int) t.getExperienceYears();
+        Double rating = feedbackRepo.getAverageRatingForTutor(t.getId());
+        dto.averageRating = (rating != null) ? Math.round(rating * 10.0) / 10.0 : 0.0;
         return dto;
     }
 
@@ -156,6 +163,8 @@ public class Mapper {
         dto.status = t.getStatus();
         dto.educationLevel = t.getEducationLevel();
         dto.experienceYears = (int) t.getExperienceYears();
+        Double rating = feedbackRepo.getAverageRatingForTutor(t.getId());
+        dto.averageRating = (rating != null) ? Math.round(rating * 10.0) / 10.0 : 0.0;
         return dto;
     }
 

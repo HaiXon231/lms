@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 import com.cnpm.lms.domain.Feedback;
 import com.cnpm.lms.domain.Mapper;
@@ -21,6 +22,10 @@ import com.cnpm.lms.service.FeedBackService;
 import com.cnpm.lms.service.ParticipationService;
 import com.cnpm.lms.service.RegistrationService;
 import com.cnpm.lms.service.TutorService;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.cnpm.lms.config.CustomUserDetails;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/student")
@@ -46,8 +51,10 @@ public class StudentController {
     private Mapper mapper;
 
     @GetMapping("/tutors")
-    public ResponseEntity<?> getAllTutors() {
-        var tutors = tutorService.getAllTutors()
+    public ResponseEntity<?> getAllTutors(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        var tutors = tutorService.getAllTutors(page, size)
                 .stream()
                 .map(mapper::toTutorListDTO)
                 .toList();
@@ -62,8 +69,11 @@ public class StudentController {
     }
 
     @GetMapping("/tutors/{id}/available-sessions")
-    public ResponseEntity<?> getAvailableSessions(@PathVariable Long id) {
-        var sessions = availableSessionService.getOpenSessionsByTutorId(id)
+    public ResponseEntity<?> getAvailableSessions(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        var sessions = availableSessionService.getOpenSessionsByTutorId(id, page, size)
                 .stream()
                 .map(mapper::toAvailableSessionDTO)
                 .toList();
@@ -73,18 +83,18 @@ public class StudentController {
 
     @PostMapping("/available-sessions/{available_sessionsId}/register")
     public ResponseEntity<?> register(
-            @RequestParam Long studentId,
+            @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long available_sessionsId) {
 
-        Registration reg = registrationService.register(studentId, available_sessionsId);
+        Registration reg = registrationService.register(user.getId(), available_sessionsId);
 
         return ResponseEntity.ok(mapper.toRegistrationDTO(reg));
     }
 
     @GetMapping("/registrations")
-    public ResponseEntity<?> getRegistrations(@RequestParam Long studentId) {
+    public ResponseEntity<?> getRegistrations(@AuthenticationPrincipal CustomUserDetails user) {
 
-        var result = registrationService.getRegistrationsByStudentId(studentId)
+        var result = registrationService.getRegistrationsByStudentId(user.getId())
                 .stream()
                 .map(mapper::toRegistrationDTO)
                 .toList();
@@ -94,7 +104,11 @@ public class StudentController {
 
     // 6. Hủy đăng ký
     @DeleteMapping("/registrations/{registrationId}")
-    public ResponseEntity<?> cancel(@PathVariable Long registrationId) {
+    public ResponseEntity<?> cancel(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long registrationId) {
+        Registration reg = registrationService.getById(registrationId);
+        if (reg == null || reg.getStudent().getId() != user.getId().longValue()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized to cancel this registration");
+        }
         return ResponseEntity.ok(registrationService.cancelRegistration(registrationId));
     }
 
@@ -102,19 +116,22 @@ public class StudentController {
     @PostMapping("/consultation-sessions/{consultation_sessionId}/feedback")
     public ResponseEntity<?> createFeedback(
             @PathVariable Long consultation_sessionId,
-            @RequestParam Long studentId,
-            @RequestBody String content) {
+            @AuthenticationPrincipal CustomUserDetails user,
+            @Valid @RequestBody com.cnpm.lms.domain.DTO.FeedbackRequest req) {
 
-        Participation p = participationService.getByStudentIdAndSessionId(studentId, consultation_sessionId);
+        Participation p = participationService.getByStudentIdAndSessionId(user.getId(), consultation_sessionId);
+        if (p == null) {
+            return ResponseEntity.badRequest().body("You did not participate in this session.");
+        }
 
-        Feedback fb = feedbackService.create(p, content);
+        Feedback fb = feedbackService.create(p, req.content, req.rating);
 
         return ResponseEntity.ok(mapper.toFeedbackDTO(fb));
     }
 
     @GetMapping("/consultation-sessions")
-    public ResponseEntity<?> getStudentConsultationSessions(@RequestParam Long studentId) {
-        var participations = participationService.getByStudentId(studentId);
+    public ResponseEntity<?> getStudentConsultationSessions(@AuthenticationPrincipal CustomUserDetails user) {
+        var participations = participationService.getByStudentId(user.getId());
         var sessions = participations.stream()
                 .map(p -> p.getSession())
                 .map(s -> mapper.toConsultationSessionDTO(s))

@@ -12,10 +12,11 @@ public class FeedBackService {
     @Autowired
     private FeedbackRepository repo;
 
-    public Feedback create(Participation participation, String content) {
+    public Feedback create(Participation participation, String content, Integer rating) {
         Feedback feedback = new Feedback();
         feedback.setParticipation(participation);
         feedback.setContent(content);
+        feedback.setRating(rating);
         return repo.save(feedback);
     }
 

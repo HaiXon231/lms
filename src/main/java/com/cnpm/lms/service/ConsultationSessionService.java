@@ -15,7 +15,10 @@ import com.cnpm.lms.repository.ConsultationSessionRepository;
 import com.cnpm.lms.repository.ParticipationRepository;
 import com.cnpm.lms.repository.RegistrationRepository;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
+@Transactional
 public class ConsultationSessionService {
     @Autowired
     private ConsultationSessionRepository repo;
@@ -48,6 +51,7 @@ public class ConsultationSessionService {
         session.setTutor(tutor);
         session.setSourceAvailableSession(availableSession);
         session.setRoom(room);
+        availableSession.setConsultationSession(session); // Important for maintaining relation
         return repo.save(session);
     }
 
